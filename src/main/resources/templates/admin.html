@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Admin page</title>
+
+    <link th:href="@{/styles/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/styles/user-style.css}" rel="stylesheet">
+</head>
+<body>
+
+<! Модальное окно редактирования юзера -->
+<div id="editUserModal" class="modal" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование юзера</h5>
+                <button type="button" class="close close_edit_modal" data-dismiss="modal">×</button>
+            </div>
+            <form class="form-register" autocomplete="off" method="PUT">
+                <div class="modal-body">
+                    <label class="form-label" for="edit-id">ID</label>
+                    <input readonly class="form-control" type="text" id="edit-id">
+
+                    <label class="form-label" for="edit-name">Имя</label>
+                    <input class="form-control" type="text" id="edit-name">
+
+                    <label class="form-label" for="edit-lastname">Фамилия</label>
+                    <input class="form-control" type="text" id="edit-lastname">
+
+                    <label class="form-label" for="edit-age">Возраст</label>
+                    <input class="form-control" type="text" id="edit-age">
+
+                    <label class="form-label" for="edit-username">Имя пользователя</label>
+                    <input class="form-control" type="text" id="edit-username">
+
+                    <p>Если не хотите менять пароль - оставьте поле пустым</p>
+                    <label class="form-label" for="edit-password">Пароль</label><br>
+                    <input class="form-control" type="text" id="edit-password">
+
+                    <label class="form-label" for="edit-roles">Права</label>
+                    <select class="form-control" id="edit-roles" size="2" multiple>
+                        <option value="ROLE_ADMIN">админ</option>
+                        <option value="ROLE_USER">пользователь</option>
+                    </select>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close_edit_modal" data-dismiss="modal">Закрыть</button>
+                <button type="submit" class="btn btn-primary" id="js-doEditBtn" onclick="sendEditUserData()">Изменить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<! Модальное окно удаления юзера -->
+<div id="deleteUserModal" class="modal" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Удаление юзера</h5>
+                <button type="button" class="close  close_delete_modal" data-dismiss="modal">×</button>
+            </div>
+            <form class="form-register" autocomplete="off" method="DELETE">
+                <div class="modal-body">
+                    <label class="form-label" for="delete-id">ID</label>
+                    <input readonly class="form-control" type="text" id="delete-id">
+
+                    <label class="form-label" for="delete-name">Имя</label>
+                    <input readonly class="form-control" type="text" id="delete-name">
+
+                    <label class="form-label" for="delete-lastname">Фамилия</label>
+                    <input readonly class="form-control" type="text" id="delete-lastname">
+
+                    <label class="form-label" for="delete-age">Возраст</label>
+                    <input readonly class="form-control" type="text" id="delete-age">
+
+                    <label class="form-label" for="delete-username">Имя пользователя</label>
+                    <input readonly class="form-control" type="text" id="delete-username">
+
+                    <label class="form-label" for="delete-roles">Права</label>
+                    <select readonly class="form-control" id="delete-roles" size="2">
+                        <option>админ</option>
+                        <option>пользователь</option>
+                    </select>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close_delete_modal" data-dismiss="modal">Закрыть</button>
+                <button type="submit" class="btn btn-danger" id="js-doDeleteBtn2" onclick="sendDeleteUserData()">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row myheader">
+        <div class="col-md-11">
+            <h3>id=<span id="js-header-id" th:text="${userid}"></span>&nbsp;<strong><span id="js-header-username">имя</span></strong> с правами:&nbsp;
+                <span id="js-header-roles"></span>
+            </h3>
+        </div>
+        <div class="col-md-1">
+            <form th:action="@{/dologout}" method="get">
+                <button type="Submit" class="btn btn-link">Выйти</button>
+            </form>
+        </div>
+    </div>
+    <div class="row mypanel">
+        <div class="col-md-2 mybackwhite">
+            <ul class="nav nav-tabs flex-column" id="nav1">
+                <li class="nav-item">
+                    <a class="nav-link active show" href="#tab1" data-toggle="tab">Admin</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#tab2" data-toggle="tab">User</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-10 mybackgray">
+            <div class="tab-content">
+                <! TAB1 админский -->
+                <div class="tab-pane active" id="tab1">
+                    <h3>Админская панель</h3>
+
+                    <ul class="nav nav-tabs flex-row" id="nav2">
+                        <li class="nav-item">
+                            <a class="nav-link active show" href="#tab3" data-toggle="tab">Таблица юзеров</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tab4" data-toggle="tab">Новый юзер</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <! Вложенный TAB список юзеров-->
+                        <div class="tab-pane mybackwhite active" id="tab3">
+                            <table class="all-user-table table table-striped">
+                            </table>
+                        </div>
+                        <! Вложенный TAB добавления нового юзера -->
+                        <div class="tab-pane mybackwhite" id="tab4">
+                            <form class="form-register" autocomplete="off">
+                                <label class="form-label" for="new-name">Имя</label>
+                                <input class="form-control myneededfield" type="text" id="new-name">
+
+                                <label class="form-label" for="new-lastname">Фамилия</label>
+                                <input class="form-control" type="text" id="new-lastname">
+
+                                <label class="form-label" for="new-age">Возраст</label>
+                                <input class="form-control" type="text" id="new-age">
+
+                                <label class="form-label" for="new-username">Имя пользователя</label>
+                                <input class="form-control myneededfield" type="text" id="new-username">
+
+                                <label class="form-label" for="new-password">Пароль</label><br>
+                                <input class="form-control" type="text" id="new-password">
+
+                                <label class="form-label" for="new-passwordconfirm">Подтверждение пароля</label><br>
+                                <input class="form-control" type="text" id="new-passwordconfirm">
+
+                                <label class="form-label" for="new-roles">Права</label>
+                                <select class="form-control" id="new-roles" size="2" multiple>
+                                    <option th:value="ROLE_ADMIN">админ</option>
+                                    <option th:value="ROLE_USER">пользователь</option>
+                                </select>
+                                <br>
+                            </form>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" type="submit" onclick="sendNewUserData()">Добавить</button>
+                            </div>
+                            <br>&nbsp;<br>
+                        </div>
+                    </div>
+                </div>
+                <! TAB2 юзерскй -->
+                <div class="tab-pane mybackgray" id="tab2">
+                    <div class="page-header">
+                        <h3>Страница информации о пользователе</h3>
+                    </div>
+                    <div class="tab-content">
+                        <table class="my-user-table table mybackwhite">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+<script th:src="@{/js/admin-v2.js}"></script>
+</body>
+</html>

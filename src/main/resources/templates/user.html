@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>User page</title>
+
+    <link th:href="@{/styles/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/styles/user-style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row myheader">
+        <div class="col-md-11">
+            <h3><strong><span id="js-header-username">имя</span></strong> с правами:&nbsp;
+                <span id="js-header-roles"></span>
+            </h3>
+        </div>
+        <div class="col-md-1">
+            <form th:action="@{/dologout}" method="get">
+                <button type="Submit" class="btn btn-link">Выйти</button>
+            </form>
+        </div>
+    </div>
+    <div class="row mypanel">
+        <div class="col-md-2 mybackwhite">
+            <ul class="nav nav-tabs flex-column" id="nav1">
+                <li class="nav-item">
+                    <a class="nav-link active show" href="#tab1" data-toggle="tab">User</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-10 mybackgray">
+            <div class="tab-content">
+                <! TAB1 юзерскй -->
+                <div class="tab-pane mybackgray active show" id="tab1">
+                    <div class="page-header">
+                        <h3>Страница информации о пользователе</h3>
+                    </div>
+                    <div class="tab-content">
+                        <table class="my-user-table table mybackwhite">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+<script th:src="@{/js/user.js}"></script>
+</body>
+</html>

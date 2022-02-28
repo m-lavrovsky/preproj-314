@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Регистрация нового пользователя</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+    <link th:href="@{/styles/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/styles/register.css}" rel="stylesheet" />
+</head>
+<body>
+    <form class="form-register" autocomplete="off" action="#" th:action="@{/register}"
+          th:object="${userForm}" method="post" role="form">
+        <h1 class="h3 mb-3 font-weight-normal">Регистрация пользователя</h1>
+        <p th:text="${successMessage}"></p>
+
+        <label th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Ошибка имени</label>
+        <label class="sr-only">Имя: </label>
+        <input class="form-control" type="text" th:field="*{name}" placeholder="Имя" required autofocus/>
+
+        <br><label th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}">Ошибка фамилии</label>
+        <label class="sr-only">Фамилия: </label>
+        <input class="form-control" type="text" th:field="*{lastname}" placeholder="Фамилия"/>
+
+        <br><label class="sr-only">Возраст: </label>
+        <input class="form-control" type="text" th:field="*{age}" placeholder="Возраст"/>
+        <label th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Ошибка возраста</label>
+
+        <br><label class="sr-only">Юзернейм: </label>
+        <input class="form-control" type="text" th:field="*{username}" placeholder="Имя пользователя"/>
+        <label th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Ошибка логина</label>
+        <label th:text="${usernameError}"></label>
+
+        <br><label class="sr-only">Пароль: </label>
+        <input class="form-control" type="password" th:field="*{password}" placeholder="Пароль"/>
+        <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Ошибека пароля</label>
+
+        <br><label class="sr-only">Повтор пароля: </label>
+        <input class="form-control" type="password" th:field="*{passwordConfirm}" placeholder="Повтор пароля"/>
+        <label th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}">Ошибека повтора пароля</label>
+        <label th:text="${passwordError}"></label>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Зарегистрироаться</button>
+
+        <BR><a class="link"  href="#" th:href="@{/}">Назад к авторизации</a>
+    </form>
+</body>
+</html>
