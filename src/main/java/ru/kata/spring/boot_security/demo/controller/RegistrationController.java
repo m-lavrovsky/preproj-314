@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repo.UserRepository;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
@@ -17,9 +16,6 @@ import javax.validation.Valid;
 public class RegistrationController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    UserRepository userRepository;
 
     @GetMapping("/register")
     public String registration(Model model) {
@@ -35,7 +31,7 @@ public class RegistrationController {
             return "register";
         }
 
-        if ((userForm != null) && (userRepository.findByUsername(userForm.getUsername()) !=  null)) { /* (!userService.saveUser(userForm))*/
+        if ((userForm != null) && (userService.findUserByUsername(userForm.getUsername()) !=  null)) { /* (!userService.saveUser(userForm))*/
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "register";
         }

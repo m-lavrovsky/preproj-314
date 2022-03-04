@@ -18,39 +18,39 @@ public class RESTController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    UserRepository userRepository;
-
     @GetMapping("/users")
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers(){
+        //return userService.getAllUsers();
+        List<User> userList = userService.getAllUsers();
+        return (!userList.isEmpty())
+                ? new ResponseEntity<>(userList, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable Long id){
-        User user = userService.findUserByIdOrNull(id);
-        //System.out.println(user.getId() + " " + user.getName() + " " + user.getUsername());
-        return user;
-    }
-
-    @GetMapping("/myuser")
-    public User getUser(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername (auth.getName());
-        return user;
-    }
-
-    /*public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUser(@PathVariable Long id){
         User user = userService.findUserByIdOrNull(id);
         return user != null
                 ? new ResponseEntity<>(user, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }*/
+    }
+
+    @GetMapping("/myuser")
+    public ResponseEntity<User> getUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.findUserByUsername(auth.getName());
+
+        return user != null
+                ? new ResponseEntity<>(user, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     @PostMapping("/users")
-    public User addUser(@RequestBody User user) {
+    public ResponseEntity<User> addUser(@RequestBody User user) {
         userService.addUser(user);
-        return user;
+        return user != null
+                ? new ResponseEntity<>(user, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
     }
 
    @PutMapping("/users")

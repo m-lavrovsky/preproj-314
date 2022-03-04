@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.model.Role;
+import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repo.RoleRepository;
 import ru.kata.spring.boot_security.demo.repo.UserRepository;
 
@@ -17,9 +17,7 @@ import javax.persistence.PersistenceContext;
 import java.util.*;
 
 @Service
-public class UserService implements UserDetailsService {
-    @PersistenceContext
-    private EntityManager em;
+public class UserService {
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -27,45 +25,47 @@ public class UserService implements UserDetailsService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
+
+    public User findUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            return null;
         }
         return user;
     }
 
     public User findUserById(Long userId) {
-        Optional<User> userFromDb = userRepository.findById(userId);
-        return userFromDb.orElse(new User());
+        return userRepository.findById(userId).orElse(new User());
     }
 
     public User findUserByIdOrNull(Long userId) {
-        Optional<User> userFromDb = userRepository.findById(userId);
-        return userFromDb.orElse(null);
+        return userRepository.findById(userId).orElse(null);
     }
 
     public List<User> getAllUsers() {
         List<User> result = new ArrayList<>();
-        Iterable<User> iter = userRepository.findAll();
-        for (User user : iter) {
-            result.add(user);
-        }
+        userRepository.findAll().forEach(user -> {result.add(user);});
         return result;
-        //return userRepository.findAll();
     }
 
+
     public boolean editUser(User user) {
+        Iterable<Role> dbRoles = roleRepository.findAll();
+
+        Set<Role> roles = new HashSet<>();
+
         User userFromDB = findUserByIdOrNull(user.getId());
         if (userFromDB != null) {
-            Set<Role> roles = new HashSet<>();
-            if (user.getRoleStringJS().contains("ROLE_ADMIN")) {
-                roles.add(new Role (1L,"ROLE_ADMIN","админ"));
+            for (Role role : dbRoles) {
+                if (user.getRoleStringJS().contains(role.getName())) {
+                    roles.add(new Role (role.getId(),role.getName(),role.getNicename()));
+                }
             }
-            if (user.getRoleStringJS().contains("ROLE_USER")) {
-                roles.add(new Role (2L, "ROLE_USER", "пользователь"));
-            }
+            if (roles.isEmpty()) { roles.add(new Role(2L,"ROLE_USER","пользователь")); }
             user.setRoles(roles);
 
             if (!user.getPassword().equals("")) {
@@ -89,16 +89,14 @@ public class UserService implements UserDetailsService {
         if (user.getPassword().isEmpty()) {
             return false;
         }
+        Iterable<Role> dbRoles = roleRepository.findAll();
         Set<Role> roles = new HashSet<>();
-        if (user.getRoleStringJS().contains("ROLE_ADMIN")) {
-            roles.add(new Role (1L,"ROLE_ADMIN","админ"));
+        for (Role role : dbRoles) {
+            if (user.getRoleStringJS().contains(role.getName())) {
+                roles.add(new Role (role.getId(),role.getName(),role.getNicename()));
+            }
         }
-        if (user.getRoleStringJS().contains("ROLE_USER")) {
-            roles.add(new Role (2L, "ROLE_USER", "пользователь"));
-        }
-        if (roles.isEmpty()) {
-            roles.add(new Role (2L, "ROLE_USER", "пользователь"));
-        }
+        if (roles.isEmpty()) { roles.add(new Role(2L,"ROLE_USER","пользователь")); }
         user.setRoles(roles);
         if (!user.getPassword().equals(user.getPasswordConfirm())) {
             return false;
@@ -147,9 +145,4 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
-    @Transactional
-    public void initRoles() {
-        em.persist(new Role(1L,"ROLE_ADMIN","админ"));
-        em.persist(new Role(2L,"ROLE_USER","пользователь"));
-    }
 }
