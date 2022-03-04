@@ -31,10 +31,6 @@ public class UserService {
         return user;
     }
 
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId).orElse(new User());
-    }
-
     public User findUserByIdOrNull(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
